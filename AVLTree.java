@@ -1,6 +1,6 @@
 
 /*
- * *** YOUR NAME GOES HERE / YOUR SECTION NUMBER ***
+ * *** Oscar Sanchez Huezca - Section 001 ***
  *
  * This java file is a Java object implementing simple AVL Tree.
  * You are to complete the deleteElement method.
@@ -342,9 +342,65 @@ class LUC_AVLTree {
      */
 
     private Node deleteElement(int value, Node node) {
+        if (node == null) {
+            return node; //unchanged node
+        }
 
+        // perform standard BST delete
+        if (value < node.value) {
+            node.leftChild = deleteElement(value, node.leftChild);
+        } else if (value > node.value) {
+            node.rightChild = deleteElement(value, node.rightChild);
+        } else {
+            // Scenario 1: leaf node deletion
+            // if the node has no children, return null, effectively removing it
+            if (node.leftChild == null && node.rightChild == null) {
+                return null;
+            }
+            
+            // Scenario 2: node with only left subtree
+            // if the node has only a left child, return that child to replace it
+            if (node.leftChild != null && node.rightChild == null) {
+                return node.leftChild;
+            }
+            
+            // Scenario 3: node with only right subtree
+            // if the node has only a right child, return that child to replace it
+            if (node.rightChild != null && node.leftChild == null) {
+                return node.rightChild;
+            }
+            
+            // Scenario 4: node with two children
+            // find,replace,delete the inorder successor (smallest value in right subtree)
+            Node temp = minValueNode(node.rightChild);
+            node.value = temp.value;
+            node.rightChild = deleteElement(temp.value, node.rightChild);
+        }
+        // update height of the current node
+        node.height = getMaxHeight(getHeight(node.leftChild), getHeight(node.rightChild)) + 1;
+
+        // get balance factor and check for unbalance
+        int balanceFactor = getBalanceFactor(node);
+
+        // left heavy
+        if (balanceFactor > 1) {
+            if (getBalanceFactor(node.leftChild) >= 0) {
+                return LLRotation(node);
+            } else {
+                return LRRotation(node);
+            }
+        }
+        // right heavy
+        if (balanceFactor < -1) {
+            if (getBalanceFactor(node.rightChild) <= 0) {
+                return RRRotation(node);
+            } else {
+                return RLRotation(node);
+            }
+        }
+
+        return node;
         /*
-         * ADD CODE HERE
          * 
          * NOTE, that you should use the existing coded private methods
          * in this file, which include:
@@ -357,12 +413,7 @@ class LUC_AVLTree {
          *      - LRRotation,
          *      - RLRotation.
          *
-         * To understand what each of these methods do, see the method prologues and
-         * code for each. You can also look at the method InsertElement, as it has do
-         * do many of the same things as this method.
          */
-
-        return node;
     }
 
 
